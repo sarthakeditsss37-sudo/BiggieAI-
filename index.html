@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Companion</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --accent: #38bdf8;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+        .card {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        h2 { margin-top: 0; color: var(--primary); }
+        /* Timer Styles */
+        .timer-display {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button:hover { background: #4f46e5; }
+        /* Todo Styles */
+        .input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        input { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; }
+        ul { list-style: none; padding: 0; }
+        li {
+            display: flex;
+            justify-content: space-between;
+            background: #f1f5f9;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .delete-btn { background: #ef4444; padding: 5px 10px; font-size: 0.9rem; }
+        .delete-btn:hover { background: #dc2626; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Pomodoro Timer -->
+    <div class="card">
+        <h2>Pomodoro Focus Timer</h2>
+        <div class="timer-display" id="timer">25:00</div>
+        <div class="controls">
+            <button onclick="startTimer()">Start</button>
+            <button onclick="pauseTimer()">Pause</button>
+            <button onclick="resetTimer()">Reset</button>
+        </div>
+    </div>
+
+    <!-- Study Task List -->
+    <div class="card">
+        <h2>Study Tasks</h2>
+        <div class="input-group">
+            <input type="text" id="taskInput" placeholder="Add a study topic...">
+            <button onclick="addTask()">Add</button>
+        </div>
+        <ul id="taskList"></ul>
+    </div>
+
+    <!-- Study Stats -->
+    <div class="card">
+        <h2>Daily Insights</h2>
+        <p>Total Focus Time: <strong id="focusStats">0 hrs 0 mins</strong></p>
+        <button onclick="getAiTip()" style="background: var(--accent)">Get Study Tip</button>
+        <p id="aiTip" style="margin-top: 15px; font-style: italic; color: #475569;"></p>
+    </div>
+</div>
+
+<script>
+    // --- Timer Logic ---
+    let timeLeft = 1500;
+    let timerId = null;
+    const timerDisplay = document.getElementById('timer');
+
+    function updateDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')};
+    }
+
+    function startTimer() {
+        if (timerId) return;
+        timerId = setInterval(() => {
+            timeLeft--;
+            updateDisplay();
+            if (timeLeft <= 0) {
+                clearInterval(timerId);
+                timerId = null;
+                alert('Time is up! Take a break.');
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        clearInterval(timerId);
+        timerId = null;
+    }
+
+    function resetTimer() {
+        pauseTimer();
+        timeLeft = 1500;
+        updateDisplay();
+    }
+
+    // --- Task Logic ---
+    function addTask() {
+        const input = document.getElementById('taskInput');
+        const taskText = input.value.trim();
+        if (taskText === '') return;
+
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span>${taskText}</span>
+            <button class="delete-btn" onclick="this.parentElement.remove()">Done</button>
+        `;
+        document.getElementById('taskList').appendChild(li);
+        input.value = '';
+    }
+
+    // --- Mock AI Study Tips ---
+    function getAiTip() {
+        const tips = [
+            "🧠 Active Recall: Try hiding your notes and quizzing yourself.",
+            "⏳ The Feynman Technique: Explain your study topic to a 5-year-old.",
+            "🌱 Interleaving: Switch between different topics rather than studying just one.",
+            "🛌 Spaced Repetition: Review the material again tomorrow to lock it into long-term memory."
+        ];
+        const randomIndex = Math.floor(Math.random() * tips.length);
+        document.getElementById('aiTip').textContent = tips[randomIndex];
+    }
+</script>
+
+</body>
+</html>
